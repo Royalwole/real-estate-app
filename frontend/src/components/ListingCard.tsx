@@ -13,17 +13,20 @@ interface ListingCardProps {
       address: string;
       city: string;
       state: string;
-      zipCode: string;
     };
-    propertyType: string;
     bedrooms: number;
     bathrooms: number;
-    squareFootage: number;
-    images: Array<{ url: string }>;
+    squareFeet: number;
+    images: Array<{
+      url: string;
+      caption: string;
+    }>;
+    propertyType: string;
   };
+  showFullDetails?: boolean;
 }
 
-const ListingCard = ({ listing }: ListingCardProps) => {
+export default function ListingCard({ listing, showFullDetails = false }: ListingCardProps) {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -33,68 +36,66 @@ const ListingCard = ({ listing }: ListingCardProps) => {
   };
 
   return (
-    <Link href={`/property/${listing._id}`}>
-      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-        {/* Image Container */}
+    <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:scale-[1.02]">
+      <Link href={`/property/${listing._id}`}>
         <div className="relative h-48 w-full">
           <Image
-            src={listing.images[0]?.url || '/placeholder-house.jpg'}
+            src={listing.images[0]?.url || '/placeholder-property.jpg'}
             alt={listing.title}
             fill
-            className="object-cover"
+            style={{ objectFit: 'cover' }}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            priority={false}
           />
-          <div className="absolute top-0 right-0 bg-blue-600 text-white px-3 py-1 m-2 rounded-md">
-            {formatPrice(listing.price)}
-          </div>
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-            <h3 className="text-white text-lg font-semibold truncate">
-              {listing.title}
-            </h3>
+          <div className="absolute top-4 left-4 bg-blue-600 text-white px-2 py-1 rounded-md">
+            {listing.propertyType}
           </div>
         </div>
 
-        {/* Content */}
         <div className="p-4">
-          {/* Location */}
-          <div className="flex items-center text-gray-600 mb-2">
-            <FaMapMarkerAlt className="mr-2 text-blue-600" />
-            <p className="truncate">
-              {listing.location.city}, {listing.location.state} {listing.location.zipCode}
+          <div className="flex justify-between items-start mb-2">
+            <h3 className="text-xl font-semibold text-gray-900 truncate">
+              {listing.title}
+            </h3>
+            <p className="text-xl font-bold text-blue-600">
+              {formatPrice(listing.price)}
             </p>
           </div>
 
-          {/* Property Type */}
-          <p className="text-sm text-gray-500 mb-4 capitalize">
-            {listing.propertyType}
-          </p>
+          <div className="flex items-center text-gray-600 mb-2">
+            <FaMapMarkerAlt className="mr-1" />
+            <p className="truncate">
+              {`${listing.location.address}, ${listing.location.city}, ${listing.location.state}`}
+            </p>
+          </div>
 
-          {/* Features */}
-          <div className="flex justify-between text-gray-600">
-            <div className="flex items-center">
-              <FaBed className="mr-1 text-blue-600" />
-              <span>{listing.bedrooms} {listing.bedrooms === 1 ? 'Bed' : 'Beds'}</span>
+          <div className="grid grid-cols-3 gap-4 mt-4">
+            <div className="flex items-center text-gray-600">
+              <FaBed className="mr-2" />
+              <span>{listing.bedrooms} Beds</span>
             </div>
-            <div className="flex items-center">
-              <FaBath className="mr-1 text-blue-600" />
-              <span>{listing.bathrooms} {listing.bathrooms === 1 ? 'Bath' : 'Baths'}</span>
+            <div className="flex items-center text-gray-600">
+              <FaBath className="mr-2" />
+              <span>{listing.bathrooms} Baths</span>
             </div>
-            <div className="flex items-center">
-              <FaRuler className="mr-1 text-blue-600" />
-              <span>{listing.squareFootage.toLocaleString()} sqft</span>
+            <div className="flex items-center text-gray-600">
+              <FaRuler className="mr-2" />
+              <span>{listing.squareFeet.toLocaleString()} sqft</span>
             </div>
           </div>
-        </div>
 
-        {/* View Details Button */}
-        <div className="px-4 pb-4">
-          <button className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors">
-            View Details
-          </button>
+          {showFullDetails && (
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <Link
+                href={`/property/${listing._id}`}
+                className="inline-block w-full text-center bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+              >
+                View Details
+              </Link>
+            </div>
+          )}
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
-};
-
-export default ListingCard;
+}

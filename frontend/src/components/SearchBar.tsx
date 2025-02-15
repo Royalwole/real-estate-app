@@ -2,143 +2,121 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { FaSearch, FaDollarSign, FaBed, FaHome } from 'react-icons/fa';
+import { FaSearch, FaMapMarkerAlt } from 'react-icons/fa';
 
-const SearchBar = () => {
+export default function SearchBar() {
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  const [filters, setFilters] = useState({
+  
+  const [searchData, setSearchData] = useState({
     location: searchParams.get('location') || '',
-    propertyType: searchParams.get('propertyType') || '',
     minPrice: searchParams.get('minPrice') || '',
     maxPrice: searchParams.get('maxPrice') || '',
+    propertyType: searchParams.get('propertyType') || '',
     bedrooms: searchParams.get('bedrooms') || '',
   });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setSearchData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const queryParams = new URLSearchParams();
-    
-    Object.entries(filters).forEach(([key, value]) => {
+    const params = new URLSearchParams();
+    Object.entries(searchData).forEach(([key, value]) => {
       if (value) {
-        queryParams.append(key, value);
+        params.append(key, value);
       }
     });
-
-    router.push(`/listings?${queryParams.toString()}`);
+    
+    router.push(`/listings?${params.toString()}`);
   };
 
-  const propertyTypes = [
-    { value: 'house', label: 'House' },
-    { value: 'apartment', label: 'Apartment' },
-    { value: 'condo', label: 'Condo' },
-    { value: 'townhouse', label: 'Townhouse' },
-  ];
-
-  const bedroomOptions = [
-    { value: '1', label: '1+' },
-    { value: '2', label: '2+' },
-    { value: '3', label: '3+' },
-    { value: '4', label: '4+' },
-    { value: '5', label: '5+' },
-  ];
-
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        {/* Location */}
+    <form onSubmit={handleSubmit} className="w-full max-w-6xl mx-auto p-4 bg-white rounded-lg shadow-md">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <FaSearch className="text-gray-400" />
+            <FaMapMarkerAlt className="text-gray-400" />
           </div>
           <input
             type="text"
-            placeholder="Location"
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-            value={filters.location}
-            onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+            name="location"
+            value={searchData.location}
+            onChange={handleChange}
+            placeholder="City, State, or ZIP"
+            className="pl-10 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
 
-        {/* Property Type */}
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <FaHome className="text-gray-400" />
-          </div>
+        <div>
           <select
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-            value={filters.propertyType}
-            onChange={(e) => setFilters({ ...filters, propertyType: e.target.value })}
+            name="propertyType"
+            value={searchData.propertyType}
+            onChange={handleChange}
+            className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           >
             <option value="">Property Type</option>
-            {propertyTypes.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
+            <option value="house">House</option>
+            <option value="apartment">Apartment</option>
+            <option value="condo">Condo</option>
+            <option value="townhouse">Townhouse</option>
           </select>
         </div>
 
-        {/* Price Range */}
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <FaDollarSign className="text-gray-400" />
-          </div>
+        <div>
           <input
             type="number"
+            name="minPrice"
+            value={searchData.minPrice}
+            onChange={handleChange}
             placeholder="Min Price"
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-            value={filters.minPrice}
-            onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })}
+            className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
 
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <FaDollarSign className="text-gray-400" />
-          </div>
+        <div>
           <input
             type="number"
+            name="maxPrice"
+            value={searchData.maxPrice}
+            onChange={handleChange}
             placeholder="Max Price"
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-            value={filters.maxPrice}
-            onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
+            className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
 
-        {/* Bedrooms */}
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <FaBed className="text-gray-400" />
-          </div>
+        <div>
           <select
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-            value={filters.bedrooms}
-            onChange={(e) => setFilters({ ...filters, bedrooms: e.target.value })}
+            name="bedrooms"
+            value={searchData.bedrooms}
+            onChange={handleChange}
+            className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           >
             <option value="">Bedrooms</option>
-            {bedroomOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
+            <option value="1">1+</option>
+            <option value="2">2+</option>
+            <option value="3">3+</option>
+            <option value="4">4+</option>
+            <option value="5">5+</option>
           </select>
         </div>
       </div>
 
-      {/* Search Button */}
       <div className="mt-4 flex justify-center">
         <button
           type="submit"
-          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
+          className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
+          <FaSearch className="mr-2" />
           Search Properties
         </button>
       </div>
     </form>
   );
-};
-
-export default SearchBar;
+}
